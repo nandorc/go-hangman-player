@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"hangman-player/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +10,7 @@ import (
 // PlayerService
 // Retrieves character suggestions based on a word to guess and characters tried before
 func PlayerService(context *gin.Context) {
-	message := "Hola"
-	context.IndentedJSON(http.StatusOK, message)
+	var request model.Request
+	context.BindJSON(&request)
+	context.IndentedJSON(http.StatusOK, request)
 }
