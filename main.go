@@ -1,18 +1,13 @@
 package main
 
 import (
-	"net/http"
+	"hangman-player/controller"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
-	router.POST("/hangman", PlayerService)
+	router.POST("/hangman", controller.PlayerService)
 	router.Run(":8090")
-}
-
-func PlayerService(context *gin.Context) {
-	message := "Hola"
-	context.IndentedJSON(http.StatusOK, message)
 }
