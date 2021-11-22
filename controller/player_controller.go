@@ -12,5 +12,17 @@ import (
 func PlayerService(context *gin.Context) {
 	var request model.Request
 	context.BindJSON(&request)
+	if isValid, errorMessage := validateRequest(&request); !isValid {
+		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": errorMessage})
+		return
+	}
 	context.IndentedJSON(http.StatusOK, request)
+}
+
+// validateRequest
+func validateRequest(request *model.Request) (bool, string) {
+	if request.WordToGuess == "" {
+		return false, "No se recibió palabra para generar sugerencias."
+	}
+	return true, ""
 }
