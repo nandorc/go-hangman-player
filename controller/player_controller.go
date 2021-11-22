@@ -11,12 +11,19 @@ import (
 // Retrieves character suggestions based on a word to guess and characters tried before
 func PlayerService(context *gin.Context) {
 	var request model.Request
+	var response model.Response
 	context.BindJSON(&request)
 	if isValid, errorMessage := validateRequest(&request); !isValid {
 		context.IndentedJSON(http.StatusBadRequest, gin.H{"message": errorMessage})
 		return
 	}
-	context.IndentedJSON(http.StatusOK, request)
+	hasUnknown, prev, next := request.GetFirstUnkown()
+	if !hasUnknown {
+		context.IndentedJSON(http.StatusNotFound, gin.H{"mesage": "El string enviado no tiene caracteres pendientes por descubrir"})
+		return
+	}
+	response.Build(prev, next, request.Tries)
+	context.IndentedJSON(http.StatusOK, response)
 }
 
 // validateRequest
