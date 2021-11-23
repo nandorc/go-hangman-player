@@ -26,20 +26,24 @@ while [ $hasToEnd -eq 0 ]; do
     elif [ ! -f ./bin/http_response ]; then
       echo -e "\e[31mERROR:\e[0m Nothing received from testing point.\n"
     elif [ "$response" != "200" ]; then
-      message=$(cat ./bin/http_response | grep message | sed -e 's/"message"://' -e 's/^.*"\(.*\)"/\1/')
+      message=$(cat ./bin/http_response | grep message | sed -e 's/"message"://' -e 's/^.*"\(.*\)".*/\1/')
       if [ -z "$message" ]; then
         echo -e "\e[34mINFO:\e[0m Looks like test has finished.\n"
       else
         echo -e "\e[34mINFO:\e[0m $message\n"
       fi
     else
-      letra=$(cat ./bin/http_response | grep letra | sed -e 's/"letra"://' -e 's/^.*"\(.*\)"/\1/')
+      letra=$(cat ./bin/http_response | grep letra | sed -e 's/"letra"://' -e 's/^.*"\(.*\)".*/\1/')
       if [ -z "$letra" ]; then
         echo -e "\e[31mERROR:\e[0m No valid data received from service.\n"
       else
-        hasToTest=1
         tries="$tries$letra"
         maskedWord=$(echo "$wordToTest" | sed -e "s/[^$tries]/?/g")
+        if [ -z "$(echo $maskedWord | grep "?")" ]; then
+          echo -e "\e[34mINFO:\e[0m The word was discovered.\n"
+        else
+          hasToTest=1
+        fi
       fi
     fi
     rm -f ./bin/http_response
