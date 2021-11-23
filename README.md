@@ -24,3 +24,7 @@ This project serves an API which provides a player for the classic game *hangman
 > >     {
 > >         "letra" : string
 > >     }
+
+## Extra Tool
+
+The project includes a bin tool named `bin/tester` wich can be used to test service response for user provided words.
