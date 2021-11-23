@@ -1,13 +1,7 @@
 # Hangman Player
 
-> **Team name:** #radiopragma
+> **Author:**
 > 
-> **Unique team number:** 2
-> 
-> **Team members:**
-> 
-> - Carlos Alberto Lopez Mazo <carlos.lopez@pragma.com.co>
-> - John David Gonzalez Alzate <john.gonzalez@pragma.com.co>
 > - Daniel Fernando Rivera Cubillos <daniel.rivera@pragma.com.co>
 
 ## Description
