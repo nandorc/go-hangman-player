@@ -19,7 +19,7 @@ func PlayerService(context *gin.Context) {
 	}
 	hasUnknown, prev, next := request.GetFirstUnkown()
 	if !hasUnknown {
-		context.IndentedJSON(http.StatusNotFound, gin.H{"mesage": "El string enviado no tiene caracteres pendientes por descubrir"})
+		context.IndentedJSON(http.StatusNotFound, gin.H{"message": "El string enviado no tiene caracteres pendientes por descubrir"})
 		return
 	}
 	response.Build(prev, next, request.Tries)
