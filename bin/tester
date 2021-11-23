@@ -1,0 +1,75 @@
+#!/bin/bash
+
+if [ ! -f ./bin/tester ]; then
+  echo -e "\n\e[31mERROR:\e[0m Wrong execution point for tester.\n" && exit 1
+fi
+if [ -z "$1" ]; then
+  testingPoint="http://localhost:8090/hangman"
+else
+  testingPoint="$1"
+fi
+hasToEnd=0
+while [ $hasToEnd -eq 0 ]; do
+  clear && echo -e "\n\e[1;35mHangman CLI Tester\e[0m\n"
+  echo -e "\e[46;30mTesting point:\e[0m $testingPoint\n"
+  read -p "Type the word you wanna test: " wordToTest
+  echo -e "\n\e[36mTesting $wordToTest at $testingPoint...\e[0m\n"
+  hasToTest=1
+  maskedWord=$(echo "$wordToTest" | sed -e 's/./?/g')
+  tries=""
+  timerStart=$(date +%s%N | cut -b1-13)
+  while [ $hasToTest -eq 1 ]; do
+    response=$(curl -s --write-out '%{http_code}' --output "./bin/http_response" -H "Content-Type: application/json" -X POST --data '{ "palabra": "'"$maskedWord"'", "intentos": "'"$tries"'" }' "$testingPoint")
+    hasToTest=0
+    if [ "$response" == "000" ]; then
+      echo -e "\e[31mERROR:\e[0m Looks like the service is not reachable.\n"
+    elif [ ! -f ./bin/http_response ]; then
+      echo -e "\e[31mERROR:\e[0m Nothing received from testing point.\n"
+    elif [ "$response" != "200" ]; then
+      message=$(cat ./bin/http_response | grep message | sed -e 's/"message"://' -e 's/^.*"\(.*\)"/\1/')
+      if [ -z "$message" ]; then
+        echo -e "\e[34mINFO:\e[0m Looks like test has finished.\n"
+      else
+        echo -e "\e[34mINFO:\e[0m $message\n"
+      fi
+    else
+      letra=$(cat ./bin/http_response | grep letra | sed -e 's/"letra"://' -e 's/^.*"\(.*\)"/\1/')
+      if [ -z "$letra" ]; then
+        echo -e "\e[31mERROR:\e[0m No valid data received from service.\n"
+      else
+        hasToTest=1
+        tries="$tries$letra"
+        maskedWord=$(echo "$wordToTest" | sed -e "s/[^$tries]/?/g")
+      fi
+    fi
+    rm -f ./bin/http_response
+  done
+  echo -e "\e[36mThat's all folks!\e[0m"
+  timerEnd=$(date +%s%N | cut -b1-13)
+  echo -e "\tEstimated time: $(($timerEnd - $timerStart))ms"
+  echo -e "\tCharacters tried: $tries"
+  echo -e "\tScore: $((${#tries} * -1))"
+  option=""
+  isInvalidOption=0
+  while [ -z "$option" ]; do
+    if [ $isInvalidOption -eq 1 ]; then
+      echo -e "\n\e[33mWRONG ANSWER FELLOW! Let's try again ok?\e[0m\n"
+    else
+      echo ""
+    fi
+    read -p "Wanna test another word? (y/n) [y]: " option
+    if [ "$option" != "" ] && [ "$option" != "y" ] && [ "$option" != "Y" ] && [ "$option" != "n" ] && [ "$option" != "N" ]; then
+      isInvalidOption=1
+      option=""
+    else
+      isInvalidOption=0
+      if [ "$option" == "" ]; then
+        option="y"
+      fi
+      if [ "$option" == "n" ] || [ "$option" == "N" ]; then
+        hasToEnd=1
+      fi
+    fi
+  done
+done
+echo -e "\nThanks for using this tool :D\n"
